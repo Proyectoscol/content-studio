@@ -26,7 +26,7 @@ export type Category = 'ventas' | 'mentalidad' | 'productividad' | 'crecimiento_
 
 export interface ApiError {
   error: string
-  code: 'FETCH_FAILED' | 'CLAUDE_ERROR' | 'PARSE_ERROR' | 'TIMEOUT'
+  code: 'FETCH_FAILED' | 'CLAUDE_ERROR' | 'PARSE_ERROR' | 'TIMEOUT' | 'AUTH_FAILED'
 }
 
 export interface Session {

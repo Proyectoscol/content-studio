@@ -11,13 +11,13 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 function isAuthorized(req: VercelRequest): boolean {
-  const token = req.headers['x-session-token'] as string | undefined
-  return !!token && token === process.env.SESSION_TOKEN
+  const token = (req.headers['x-session-token'] as string | undefined)?.trim()
+  return !!token && token === process.env.SESSION_TOKEN?.trim()
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed', code: 'FETCH_FAILED' })
-  if (!isAuthorized(req)) return res.status(401).json({ error: 'No autorizado', code: 'FETCH_FAILED' })
+  if (!isAuthorized(req)) return res.status(401).json({ error: 'No autorizado', code: 'AUTH_FAILED' })
 
   const { category, topic } = req.body as { category?: string; topic?: string }
 

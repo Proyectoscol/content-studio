@@ -4,11 +4,11 @@ const BASE = import.meta.env.DEV ? 'http://localhost:3001' : ''
 const TOKEN_KEY = 'cs-session-token'
 
 export function getStoredToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
+  return localStorage.getItem(TOKEN_KEY)?.trim() ?? null
 }
 
 export function storeToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token)
+  localStorage.setItem(TOKEN_KEY, token.trim())
 }
 
 export function clearToken(): void {
@@ -26,7 +26,7 @@ async function post<T>(path: string, body: object): Promise<T> {
     body: JSON.stringify(body),
   })
   const data = await res.json()
-  if (res.status === 401) {
+  if (res.status === 401 && (data as ApiError).code === 'AUTH_FAILED') {
     clearToken()
     window.location.reload()
   }
