@@ -140,8 +140,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
-    const lang = process.env.SCRIPT_LANGUAGE ?? 'es'
-    const model = process.env.CLAUDE_MODULE1_MODEL ?? 'claude-haiku-4-5-20251001'
+    const lang = (process.env.SCRIPT_LANGUAGE ?? 'es').trim()
+    const model = (process.env.CLAUDE_MODULE1_MODEL ?? 'claude-haiku-4-5-20251001').trim()
 
     const prompt = `Eres un creador de contenido de IA. Escribe scripts para ${selected.length} videos cortos de 15-30 segundos sobre noticias de IA en idioma "${lang}".
 

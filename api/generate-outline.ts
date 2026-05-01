@@ -25,8 +25,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Categoría inválida', code: 'FETCH_FAILED' })
   }
 
-  const lang = process.env.SCRIPT_LANGUAGE ?? 'es'
-  const model = process.env.CLAUDE_MODULE2_MODEL ?? 'claude-sonnet-4-6'
+  const lang = (process.env.SCRIPT_LANGUAGE ?? 'es').trim()
+  const model = (process.env.CLAUDE_MODULE2_MODEL ?? 'claude-sonnet-4-6').trim()
 
   try {
     let finalTopic = topic?.trim()
