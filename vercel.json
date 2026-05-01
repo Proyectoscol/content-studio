@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/generate-scripts.ts": { "maxDuration": 30 },
+    "api/generate-outline.ts": { "maxDuration": 60 }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
