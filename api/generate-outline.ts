@@ -66,31 +66,77 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       totalOutputTokens += topicMsg.usage.output_tokens
     }
 
-    // Concise outline for 15-20 min video to keep response fast
-    const prompt = `Genera el outline para un video de YouTube de 15-20 minutos sobre: "${finalTopic}"
+    // Redesigned prompt: philosophical, visual, bullet-heavy, no time markers
+    const prompt = `Eres un creador de contenido filosófico y educativo. Crea el outline de un video sobre: "${finalTopic}"
 Categoría: ${CATEGORY_LABELS[category]}
 Idioma: ${lang}
 
-Estructura en Markdown (## para secciones, - para bullets):
+REGLAS OBLIGATORIAS:
+- Sin menciones de tiempo como "(30 segundos)" o "(2 minutos)" — NUNCA
+- Bullet points cortos y directos, máximo 12 palabras por bullet
+- Cada sección tiene UNA idea central diferente — no repetir conceptos
+- Toma ideas complejas y simplifícalas radicalmente
+- Usa Markdown visualmente rico: tablas, fórmulas, citas, comparaciones
+- Estilo filosófico: pregunta el "por qué" antes del "cómo"
 
-# [TÍTULO GANCHO]
+FORMATO OBLIGATORIO — usa exactamente esta estructura:
 
-## Introducción (30-45 segundos)
-[1-2 párrafos que plantean el problema y valor del video]
+# [TÍTULO que provoca curiosidad — pregunta o paradoja]
 
-## [Sección 1]
-- [Punto 1 - oración completa]
-- [Punto 2 - oración completa]
-- [Punto 3 - oración completa]
-**Historia/Ejemplo:** [1-2 oraciones concretas]
-**Dato/Cita:** [Estadística o cita]
+## 🎯 La pregunta que cambia todo
+[Una pregunta filosófica poderosa que abre el tema]
+- [Observación 1 — simple, directa]
+- [Observación 2 — contraintuitiva]
+- [Observación 3 — provoca reflexión]
 
-[Repite para 3 secciones más]
+> "[Cita poderosa y relevante]" — [Autor]
 
-## Conclusión y CTA
-[Resumen + llamada a la acción en 1 párrafo]
+---
 
-Responde SOLO con el Markdown. Sin texto adicional.`
+## 💡 [Concepto 1 — nombra la idea central]
+
+**La idea en una línea:** [Explicación en ≤15 palabras]
+
+- [Bullet 1]
+- [Bullet 2]
+- [Bullet 3]
+- [Bullet 4]
+
+[Incluye UNO de estos elementos visuales según aplique:]
+
+OPCIÓN A — Tabla comparativa:
+| Mentalidad común | Mentalidad ganadora |
+|---|---|
+| [X] | [Y] |
+| [X] | [Y] |
+
+OPCIÓN B — Fórmula:
+$$[Variable A] + [Variable B] = [Resultado]$$
+> *Ejemplo: [explicación de la fórmula en términos reales]*
+
+OPCIÓN C — Diagrama de progresión:
+\`\`\`
+[Punto A] → [Punto B] → [Punto C] → [Resultado]
+\`\`\`
+
+> "[Cita o principio filosófico]" — [Autor]
+
+---
+
+[Repite el bloque anterior para 3 secciones más con ideas DISTINTAS, sin repetir conceptos]
+
+---
+
+## ⚡ El principio que lo une todo
+- [Síntesis bullet 1]
+- [Síntesis bullet 2]
+- [Síntesis bullet 3]
+
+**Una cosa que puedes hacer hoy:** [Acción concreta y pequeña]
+
+---
+
+Responde SOLO con el Markdown. Sin texto extra, sin explicaciones, sin marcadores de tiempo.`
 
     const message = await client.messages.create({
       model,
