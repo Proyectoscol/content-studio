@@ -22,6 +22,7 @@ export function useOutlineGeneration() {
         module: 'module2',
         output: { title: result.title, intro_hook: '', sections: [], conclusion: '', raw_markdown: result.raw_markdown },
         label: result.title,
+        usage: result.usage,
       })
     } catch (e) {
       const err = e as ApiError

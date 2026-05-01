@@ -10,6 +10,20 @@ const CATEGORY_LABELS: Record<string, string> = {
   crecimiento_personal: 'Crecimiento Personal y Desarrollo',
 }
 
+// Cost per million tokens in USD
+const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  'claude-haiku-4-5-20251001': { input: 0.80, output: 4.00 },
+  'claude-haiku-4-6': { input: 0.80, output: 4.00 },
+  'claude-sonnet-4-5-20250929': { input: 3.00, output: 15.00 },
+  'claude-sonnet-4-6': { input: 3.00, output: 15.00 },
+  'claude-opus-4-5': { input: 15.00, output: 75.00 },
+}
+
+function calcCost(model: string, inputTokens: number, outputTokens: number): number {
+  const pricing = MODEL_PRICING[model] ?? { input: 3.00, output: 15.00 }
+  return (inputTokens / 1_000_000) * pricing.input + (outputTokens / 1_000_000) * pricing.output
+}
+
 function isAuthorized(req: VercelRequest): boolean {
   const token = (req.headers['x-session-token'] as string | undefined)?.trim()
   return !!token && token === process.env.SESSION_TOKEN?.trim()
@@ -26,7 +40,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const lang = (process.env.SCRIPT_LANGUAGE ?? 'es').trim()
-  const model = (process.env.CLAUDE_MODULE2_MODEL ?? 'claude-sonnet-4-6').trim()
+  // Default to haiku for speed — stays well within Vercel's 60s free-tier limit
+  const model = (process.env.CLAUDE_MODULE2_MODEL ?? 'claude-haiku-4-5-20251001').trim()
+  const topicModel = 'claude-haiku-4-5-20251001'
+
+  let totalInputTokens = 0
+  let totalOutputTokens = 0
 
   try {
     let finalTopic = topic?.trim()
@@ -34,39 +53,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // If no topic, ask Claude to pick one
     if (!finalTopic) {
       const topicMsg = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+        model: topicModel,
         max_tokens: 200,
         messages: [{
           role: 'user',
-          content: `Sugiere el mejor tema trending de "${CATEGORY_LABELS[category]}" para un video de YouTube de 30-40 minutos en ${lang}. Responde solo con el título del tema, sin explicación.`,
+          content: `Sugiere el mejor tema trending de "${CATEGORY_LABELS[category]}" para un video de YouTube de 15-20 minutos en ${lang}. Responde solo con el título del tema, sin explicación.`,
         }],
       })
       const c = topicMsg.content[0]
       finalTopic = c.type === 'text' ? c.text.trim() : CATEGORY_LABELS[category]
+      totalInputTokens += topicMsg.usage.input_tokens
+      totalOutputTokens += topicMsg.usage.output_tokens
     }
 
-    const prompt = `Genera el outline completo para un video de YouTube de 30-40 minutos sobre: "${finalTopic}"
+    // Concise outline for 15-20 min video to keep response fast
+    const prompt = `Genera el outline para un video de YouTube de 15-20 minutos sobre: "${finalTopic}"
 Categoría: ${CATEGORY_LABELS[category]}
 Idioma: ${lang}
 
-El video debe tener aproximadamente 5,000-6,000 palabras habladas (130 palabras/min × 38 min promedio).
+Estructura en Markdown (## para secciones, - para bullets):
 
-Estructura requerida en Markdown puro (## para secciones, - para bullets):
+# [TÍTULO GANCHO]
 
-# [TÍTULO GANCHO - curioso, específico, orientado al beneficio]
-
-## Introducción (30-60 segundos)
-[2-3 párrafos cortos que planteen el problema y el valor del video]
+## Introducción (30-45 segundos)
+[1-2 párrafos que plantean el problema y valor del video]
 
 ## [Sección 1]
-- [Punto de conversación 1 - oración completa]
-- [Punto de conversación 2 - oración completa]
-- [Punto de conversación 3 - oración completa]
-- [Punto de conversación 4 - oración completa]
-**Historia/Ejemplo:** [2-3 oraciones concretas y específicas]
-**Dato/Cita:** [Estadística o cita de experto con fuente]
+- [Punto 1 - oración completa]
+- [Punto 2 - oración completa]
+- [Punto 3 - oración completa]
+**Historia/Ejemplo:** [1-2 oraciones concretas]
+**Dato/Cita:** [Estadística o cita]
 
-[Repite para 4 secciones más]
+[Repite para 3 secciones más]
 
 ## Conclusión y CTA
 [Resumen + llamada a la acción en 1 párrafo]
@@ -75,7 +94,7 @@ Responde SOLO con el Markdown. Sin texto adicional.`
 
     const message = await client.messages.create({
       model,
-      max_tokens: 8192,
+      max_tokens: 2048,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -84,11 +103,25 @@ Responde SOLO con el Markdown. Sin texto adicional.`
       return res.status(500).json({ error: 'Respuesta inesperada de Claude', code: 'CLAUDE_ERROR' })
     }
 
+    totalInputTokens += message.usage.input_tokens
+    totalOutputTokens += message.usage.output_tokens
+
     const raw_markdown = c.text.trim()
     const titleMatch = raw_markdown.match(/^#\s+(.+)/m)
     const title = titleMatch ? titleMatch[1].trim() : finalTopic
 
-    return res.status(200).json({ raw_markdown, title })
+    const cost_usd = calcCost(model, totalInputTokens, totalOutputTokens)
+
+    return res.status(200).json({
+      raw_markdown,
+      title,
+      usage: {
+        input_tokens: totalInputTokens,
+        output_tokens: totalOutputTokens,
+        model,
+        cost_usd,
+      },
+    })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error desconocido'
     return res.status(500).json({ error: message, code: 'CLAUDE_ERROR' })

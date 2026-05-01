@@ -13,13 +13,14 @@ export function useScriptGeneration() {
     setError(null)
     try {
       const result = await generateScripts()
-      setScripts(result)
+      setScripts(result.scripts)
       saveSession({
         id: crypto.randomUUID(),
         date: new Date().toISOString(),
         module: 'module1',
-        output: result,
-        label: `${result.length} scripts · ${new Date().toLocaleDateString()}`,
+        output: result.scripts,
+        label: `${result.scripts.length} scripts · ${new Date().toLocaleDateString()}`,
+        usage: result.usage,
       })
     } catch (e) {
       const err = e as ApiError

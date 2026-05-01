@@ -29,10 +29,18 @@ export interface ApiError {
   code: 'FETCH_FAILED' | 'CLAUDE_ERROR' | 'PARSE_ERROR' | 'TIMEOUT' | 'AUTH_FAILED'
 }
 
+export interface UsageInfo {
+  input_tokens: number
+  output_tokens: number
+  model: string
+  cost_usd: number
+}
+
 export interface Session {
   id: string
   date: string
   module: 'module1' | 'module2'
   output: Script[] | Outline
   label?: string
+  usage?: UsageInfo
 }

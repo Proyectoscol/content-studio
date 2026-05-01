@@ -81,7 +81,7 @@ export function HistoryPage() {
             </button>
 
             {expanded === session.id && (
-              <div className="border-t px-4 pb-4 pt-3" style={{ borderColor: 'hsl(var(--border))' }}>
+              <div className="border-t px-4 pb-4 pt-3 space-y-3" style={{ borderColor: 'hsl(var(--border))' }}>
                 {isScripts(session.output) ? (
                   <div className="space-y-2">
                     {session.output.map((s, i) => (
@@ -101,6 +101,26 @@ export function HistoryPage() {
                     {session.output.raw_markdown.slice(0, 1000)}
                     {session.output.raw_markdown.length > 1000 ? '\n...' : ''}
                   </pre>
+                )}
+
+                {session.usage && (
+                  <div
+                    className="rounded-lg px-3 py-2 flex flex-wrap gap-x-4 gap-y-1 text-xs"
+                    style={{ background: 'hsl(var(--muted))' }}
+                  >
+                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>
+                      Modelo: <span className="font-medium" style={{ color: 'hsl(var(--foreground))' }}>{session.usage.model}</span>
+                    </span>
+                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>
+                      Entrada: <span className="font-medium" style={{ color: 'hsl(var(--foreground))' }}>{session.usage.input_tokens.toLocaleString()} tok</span>
+                    </span>
+                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>
+                      Salida: <span className="font-medium" style={{ color: 'hsl(var(--foreground))' }}>{session.usage.output_tokens.toLocaleString()} tok</span>
+                    </span>
+                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>
+                      Costo: <span className="font-semibold" style={{ color: '#16a34a' }}>${session.usage.cost_usd.toFixed(6)} USD</span>
+                    </span>
+                  </div>
                 )}
               </div>
             )}

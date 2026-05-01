@@ -177,7 +177,27 @@ ${selected.map((t, i) => `${i + 1}. ${t.title}`).join('\n')}`
       return res.status(500).json({ error: 'Error parseando respuesta de Claude', code: 'PARSE_ERROR' })
     }
 
-    return res.status(200).json(scripts)
+    const inputTokens = message.usage.input_tokens
+    const outputTokens = message.usage.output_tokens
+    const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+      'claude-haiku-4-5-20251001': { input: 0.80, output: 4.00 },
+      'claude-haiku-4-6': { input: 0.80, output: 4.00 },
+      'claude-sonnet-4-5-20250929': { input: 3.00, output: 15.00 },
+      'claude-sonnet-4-6': { input: 3.00, output: 15.00 },
+      'claude-opus-4-5': { input: 15.00, output: 75.00 },
+    }
+    const pricing = MODEL_PRICING[model] ?? { input: 3.00, output: 15.00 }
+    const cost_usd = (inputTokens / 1_000_000) * pricing.input + (outputTokens / 1_000_000) * pricing.output
+
+    return res.status(200).json({
+      scripts,
+      usage: {
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        model,
+        cost_usd,
+      },
+    })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error desconocido'
     return res.status(500).json({ error: message, code: 'CLAUDE_ERROR' })

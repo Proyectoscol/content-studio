@@ -1,4 +1,4 @@
-import type { Script, Category, ApiError } from '@/types'
+import type { Script, Category, ApiError, UsageInfo } from '@/types'
 
 const BASE = import.meta.env.DEV ? 'http://localhost:3001' : ''
 const TOKEN_KEY = 'cs-session-token'
@@ -45,10 +45,10 @@ export async function login(password: string): Promise<string> {
   return data.token as string
 }
 
-export function generateScripts(): Promise<Script[]> {
-  return post<Script[]>('/api/generate-scripts', {})
+export async function generateScripts(): Promise<{ scripts: Script[]; usage: UsageInfo }> {
+  return post<{ scripts: Script[]; usage: UsageInfo }>('/api/generate-scripts', {})
 }
 
-export function generateOutline(category: Category, topic?: string): Promise<{ raw_markdown: string; title: string }> {
-  return post<{ raw_markdown: string; title: string }>('/api/generate-outline', { category, topic })
+export function generateOutline(category: Category, topic?: string): Promise<{ raw_markdown: string; title: string; usage: UsageInfo }> {
+  return post<{ raw_markdown: string; title: string; usage: UsageInfo }>('/api/generate-outline', { category, topic })
 }
