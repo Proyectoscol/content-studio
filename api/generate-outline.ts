@@ -72,11 +72,14 @@ Categoría: ${CATEGORY_LABELS[category]}
 Idioma: ${lang}
 
 REGLAS OBLIGATORIAS:
+- Escribe el documento como si fueses Andrew Tate (con esa filosofía y agresividad)
+- Sin Emojis
+- Estamos en el lado de self improvement, money, rich lifestyle, etc.
 - Sin menciones de tiempo como "(30 segundos)" o "(2 minutos)" — NUNCA
 - Bullet points cortos y directos, máximo 12 palabras por bullet
 - Cada sección tiene UNA idea central diferente — no repetir conceptos
 - Toma ideas complejas y simplifícalas radicalmente
-- Usa Markdown visualmente rico: tablas, fórmulas, citas, comparaciones
+- Usa Markdown visualmente rico: graficas, tablas, fórmulas, citas, comparaciones
 - Estilo filosófico: pregunta el "por qué" antes del "cómo"
 
 FORMATO OBLIGATORIO — usa exactamente esta estructura:
@@ -121,6 +124,13 @@ OPCIÓN C — Diagrama de progresión:
 
 > "[Cita o principio filosófico]" — [Autor]
 
+OPCIÓN D — Grafica:
+        |             /
+        |Tus metas ->/
+        |       ____/
+        |tu -> /
+        |  /
+        |_/_______________________
 ---
 
 [Repite el bloque anterior para 3 secciones más con ideas DISTINTAS, sin repetir conceptos]
